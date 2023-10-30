@@ -40,6 +40,11 @@ jobs:
         working-directory: simple-api
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=lucielong_tpDevops
 
+        #finally build your app with the latest command
+      - name: Build and test with Maven
+        working-directory: simple-api
+        run: mvn -B verify sonar:sonar -Dsonar.projectKey=lucielong_tpDevops -Dsonar.organization=lucielong -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
   # define job to build and publish docker image
   build-and-push-docker-image:
    needs: test-backend
