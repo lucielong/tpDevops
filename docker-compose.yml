@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+    backend:
+        build:
+          context: ./simple-api
+          dockerfile: Dockerfile
+        container_name: backendtp
+        networks:
+        - app-network
+        depends_on: 
+        - database
+
+    database:
+        build:
+          context: .
+          dockerfile: Dockerfile
+        container_name: databasetp
+        networks:
+        - app-network
+
+    httpd:
+        build:
+          context: ./httpserver
+          dockerfile: Dockerfile
+        container_name: fronttp
+        ports:
+        - "8080:80"
+        networks:
+        - app-network
+        depends_on:
+        - backend
+
+networks:
+    app-network: 
