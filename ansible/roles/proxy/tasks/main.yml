@@ -1,0 +1,8 @@
+- name: Launch Proxy
+  docker_container:
+    name: fronttp
+    image: llong1/tp-devops-httpserver:latest
+    networks:
+      - name: app-network
+    ports:
+      - 8080:80

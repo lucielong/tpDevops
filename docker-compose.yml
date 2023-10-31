@@ -31,5 +31,17 @@ services:
         depends_on:
         - backend
 
+    front:
+        build:
+          context: ./front
+          dockerfile: Dockerfile
+        container_name: front
+        ports:
+        - "8081:80"
+        networks:
+        - app-network
+        depends_on:
+        - httpd
+
 networks:
     app-network: 

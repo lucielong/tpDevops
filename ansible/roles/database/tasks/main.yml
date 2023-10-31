@@ -1,0 +1,10 @@
+- name: Launch Database
+  docker_container:
+    name: databasetp
+    image: llong1/tp-devops-database:latest
+    networks:
+      - name: app-network
+    env:
+      POSTGRES_DB: "db"
+      POSTGRES_USER: "usr"
+      POSTGRES_PASSWORD: "pwd"

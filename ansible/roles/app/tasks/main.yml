@@ -1,0 +1,6 @@
+- name: Launch App
+  docker_container:
+    name: backendtp
+    image: llong1/tp-devops-simple-api:latest
+    networks:
+      - name: app-network
