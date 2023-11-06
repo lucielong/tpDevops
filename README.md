@@ -2,31 +2,31 @@
 
 ### 1-1 Document your database container essentials: commands and Dockerfile.
 
-Première étape : créer notre Docker file :
+First step: create of Docker file:
 
 ```docker
-FROM postgres:14.1-alpine *Image de base sur laquelle on se base*
+FROM postgres:14.1-alpine *The base image upon which we build*
 
 ENV POSTGRES_DB=db \
    POSTGRES_USER=usr \
    POSTGRES_PASSWORD=pwd
 
-*On défini notre environnement de database avec le user, le password et le nom de la database.*
+*We define our database environment with the username, password, and the name of the database*
 ```
 
-On build l’image : 
+We build the image: 
 
 ```bash
 docker build -t llong1/databasetp .
 ```
 
-On crée un network pour que notre database puisse communiquer avec adminer :
+A network is created to allow our database to communicate with Adminer:
 
 ```bash
 docker network create app-network
 ```
 
-On run adminer :
+We run adminer:
 
 ```bash
 docker run \
@@ -37,14 +37,13 @@ docker run \
     adminer
 ```
 
-Puis on run notre image :
+Then we run our image:
 
 ```bash
 docker run -p 8888:5000 --name databasetp  --network app-network llong1/databasetp
 ```
 
-Pour ajouter nos tables et nos données sql, on copie nos fichier sql sur notre container : 
-
+To add our SQL tables and data, we copy our SQL files to our container:
 ```docker
 FROM postgres:14.1-alpine
 
@@ -55,9 +54,9 @@ ENV POSTGRES_DB=db \
    POSTGRES_PASSWORD=pwd
 ```
 
-On re build notre image puis on la re run 
+We rebuild our image and then rerun it. 
 
-Enfin, pour conserver nos données, on ajoute un volume :
+Finally, to preserve our data, we add a volume:
 
 ```bash
 docker run -p 8888:5000 --name databasetp  --network app-network -v /initdb:/var/lib/postgresql/data llong1/databasetp
@@ -65,28 +64,55 @@ docker run -p 8888:5000 --name databasetp  --network app-network -v /initdb:/var
 
 ### 1-2 Why do we need a multistage build? And explain each step of this dockerfile.
 
+We need a multistage build in order to optimize Docker images by separating the build environment from
+the final production image. It reduces the size of the final image and eliminates unnecessary build
+dependencies.
+
 ```bash
+
 # Build
+
+# Use the maven:3.8.6-amazoncorretto-17 image as the build stage and name it myapp-build.
 FROM maven:3.8.6-amazoncorretto-17 AS myapp-build
+
+# Set an environment variable MYAPP_HOME to /opt/myapp.
 ENV MYAPP_HOME /opt/myapp
+
+# Set the working directory in the container to MYAPP_HOME.
 WORKDIR $MYAPP_HOME
+
+# Copy the Maven Project Object Model (POM) file (pom.xml) from the host to the container.
 COPY pom.xml .
+
+# Copy the source code from the host to the container in the src directory.
 COPY src ./src
+
+# Run the Maven build to package the application, skipping the tests.
 RUN mvn package -DskipTests
 
 # Run
+
+# Switch to a new stage using the amazoncorretto:17 base image.
 FROM amazoncorretto:17
+
+# Set the same MYAPP_HOME environment variable as in the build stage.
 ENV MYAPP_HOME /opt/myapp
+
+# Set the working directory in the container to MYAPP_HOME.
 WORKDIR $MYAPP_HOME
+
+# Copy the JAR file(s) from the myapp-build stage to the MYAPP_HOME directory in this stage.
 COPY --from=myapp-build $MYAPP_HOME/target/*.jar $MYAPP_HOME/myapp.jar
 
+# Define the entry point for the container, which will run the Java application with the JAR file.
 ENTRYPOINT java -jar myapp.jar
+
 
 ```
 
 ### 2-1 What are testcontainers?
 
-They simply are java libraries that allow you to run a bunch of docker containers while testing.
+Testcontainers are Java libraries that allow running multiple Docker containers during testing.
 
 ### 2-2 Document your Github Actions configurations.
 
