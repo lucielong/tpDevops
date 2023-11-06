@@ -1,0 +1,8 @@
+- name: Launch Front
+  docker_container:
+    name: front
+    image: llong1/tp-devops-front:latest
+    networks:
+      - name: app-network
+    ports:
+      - 8081:80
